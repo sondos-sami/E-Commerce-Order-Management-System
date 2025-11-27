@@ -6,5 +6,10 @@ app = Flask(__name__)
 def home():
     return {"message": "inventory_service is running"}
 
+@app.get("/test")
+def test():
+    return {"status": "service running"}
+
+
 if __name__ == "__main__":
     app.run(port=5002, debug=True)
