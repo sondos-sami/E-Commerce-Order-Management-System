@@ -173,6 +173,65 @@ def delete_product(product_id):
     }), 200
 
 
+@app.get("/api/inventory/check/<int:product_id>")
+def check_inventory(product_id):
+    product = inventory_dp.get(product_id)
+
+    if not product:
+        return jsonify({
+            "status": "error",
+            "message": f"product with ID {product_id} not found in the inventory"
+        }), 404
+    
+    return jsonify({
+        "status": "success",
+        "product id": product_id,
+        "quntity": product["quantity"] 
+    }), 200
+
+
+@app.put("/api/inventory/update")
+def update_inventory():
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "status": "error",
+            "message": "Invalid Json data"
+        }), 400
+    
+    product_id = data.get("product_id")
+    qty = data.get("quantity")
+
+    if not isinstance(product_id, int) or not isinstance(qty, int) or qty <= 0:
+        return jsonify({
+            "status": "error",
+            "message": "product id and quantity must be positive integer"
+        }), 400
+    
+    product = inventory_dp.get(product_id)
+
+    if not product:
+        return jsonify({
+            "status": "error",
+            "message": "product not found"
+        }), 404
+    
+    if product["quantity"] < qty:
+        return jsonify({
+            "status": "error",
+            "message": "insufficient stock"
+        }), 400
+    
+    product["quantity"] -= qty
+    product["last_updated"] = datetime.now().isoformat()
+
+    return jsonify({
+            "status": "success",
+            "message": "inventory updated successfully",
+            "product": product
+        }), 200
+
 @app.get("/")
 def home():
     return {"message": "inventory_service is running"}
