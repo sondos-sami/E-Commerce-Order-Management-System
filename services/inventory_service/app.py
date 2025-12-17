@@ -1,11 +1,31 @@
 from flask import Flask,request, jsonify
+from datetime import datetime 
 
 app = Flask(__name__)
 inventory_dp = {
-    1: {"product_id": 1, "name": "Laptop", "price": 1000, "quantity": 10},
-    2: {"product_id": 2, "name": "Mouse", "price": 20, "quantity": 50},
-    3: {"product_id": 3, "name": "Keyboard", "price": 30, "quantity": 30}
+    1: {
+        "product_id": 1,
+        "name": "Laptop",
+        "price": 1000,
+        "quantity": 10,
+        "last_updated": datetime.now().isoformat()
+    },
+    2: {
+        "product_id": 2,
+        "name": "Mouse",
+        "price": 20,
+        "quantity": 50,
+        "last_updated": datetime.now().isoformat()
+    },
+    3: {
+        "product_id": 3,
+        "name": "Keyboard",
+        "price": 30,
+        "quantity": 30,
+        "last_updated": datetime.now().isoformat()
+    }
 }
+
 @app.get("/api/products")
 def get_all_products():
     return jsonify({
@@ -78,7 +98,9 @@ def add_product():
         "product_id" : prduct_id,
         "name" : data["name"],
         "price" : data["price"],
-        "quantity" : data["quantity"]
+        "quantity" : data["quantity"],
+        "last_updated": datetime.now().isoformat()
+
     }
 
     return jsonify({
@@ -127,6 +149,7 @@ def edit_product(product_id):
                  "message": "quantity must be a non-negative integer"
             }), 400
         
+    product["last_updated"] = datetime.now().isoformat()
     return jsonify({
         "status": "success",
         "message": "Product updated successfully",
